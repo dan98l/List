@@ -25,18 +25,16 @@ class AuthorizationScreenViewController: UIViewController, AutoLoadable {
     }
     
     @IBAction func signInButton(_ sender: Any) {
-        if let viewModel = viewModel {
-            viewModel.didTapSignInButton()
-        }
+        guard let viewModel = viewModel else { return }
+        viewModel.didTapSignInButton(email: emailTextField.text, password: passwordTextField.text)
     }
     
     @IBAction func signUpButton(_ sender: Any) {
-        if let viewModel = viewModel {
-            if viewModel.authorization() {
-                settingSignIn()
-            } else {
-                settingSignUp()
-            }
+        guard let viewModel = viewModel else { return }
+        if viewModel.authorization() {
+            settingSignUp()
+        } else {
+            settingSignIn()
         }
     }
     
@@ -67,11 +65,6 @@ class AuthorizationScreenViewController: UIViewController, AutoLoadable {
     
     @objc private func hideKeyboardOnSwipeDown() {
         view.endEditing(true)
-    }
-    
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        view.endEditing(true)
-        return false
     }
     
     private func settingSignInButton() {
@@ -106,21 +99,6 @@ class AuthorizationScreenViewController: UIViewController, AutoLoadable {
 // MARK: - UIGestureRecognizerDelegate
 extension AuthorizationScreenViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-}
-
-// MARK: - UITextFieldDelegate
-extension AuthorizationScreenViewController: UITextFieldDelegate {
-    private func textFieldShouldReturn(textField: UITextField) -> Bool {
-        print("textFieldShouldReturn")
-//        let email = emailTextField.text
-//        let password = passwordTextField.text
-//
-//        if !email?.isEmpty {
-//
-//        }
-//        resignFirstResponder()
         return true
     }
 }

@@ -7,7 +7,7 @@
 
 import UIKit
 
-class AppCoordinator: AuthorizationScreenViewModelDelegate {
+class AppCoordinator: AuthorizationScreenViewModelDelegate, ErrorScreenViewModelDelegate {
     
     // MARK: - Properties
     
@@ -27,7 +27,7 @@ class AppCoordinator: AuthorizationScreenViewModelDelegate {
     func start() {
         window.rootViewController = navigationController
         window.makeKeyAndVisible()
-        
+        print(authorization.auth())
         if authorization.auth() {
             showHomeScreen()
         } else {
@@ -48,11 +48,45 @@ class AppCoordinator: AuthorizationScreenViewModelDelegate {
         homeCoordinator.start()
     }
     
-    func didTapSignInButton(_ viewModel: AuthorizationScreenViewModel) {
-        signIn()
+    func didTapSignInButton(_ viewModel: AuthorizationScreenViewModel, email: String, password: String, authorizationState: AuthorizationState) {
+        
+        if authorizationState == .signIn {
+            signIn(email: email, password: password)
+        } else {
+            signUp(email: email, password: password)
+        }
     }
     
-    private func signIn() {
-        print("signIn")
+    private func signIn(email: String, password: String) {
+        authorization.authWithEmail(email: email, password: password) { auth in
+            if auth {
+                self.showHomeScreen()
+            } else {
+                self.showErrorScreen()
+            }
+        }
+    }
+    
+    private func signUp(email: String, password: String) {
+        authorization.createWithEmail(email: email, password: password) { auth in
+            if auth {
+                self.showHomeScreen()
+            } else {
+                self.showErrorScreen()
+            }
+        }
+    }
+    
+    private func showErrorScreen() {
+        let errorScreenViewModel = ErrorScreenViewModel()
+        errorScreenViewModel.delegate = self
+        
+        let errorScreenViewController = ErrorScreenViewController.instantiate(from: "AuthorizationScreen")
+        errorScreenViewController.viewModel = errorScreenViewModel
+        navigationController.present(errorScreenViewController, animated: true, completion: nil)
+    }
+    
+    func didTapСontinueButton(_ viewModel: ErrorScreenViewModel) {
+        navigationController.dismiss(animated: true, completion: nil)
     }
 }

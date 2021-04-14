@@ -7,19 +7,19 @@
 
 import UIKit
 import FirebaseAuth
-import FirebaseFirestore
 
 protocol Authorization {
     func auth() -> Bool
+    func authWithEmail(email: String, password: String, completion: @escaping (Bool) -> ())
+    func createWithEmail(email: String, password: String, completion: @escaping (Bool) -> ())
 }
 
 class FirebaseAuthorizationService {
     private static let sharedInstance = FirebaseAuthorizationService()
     static func shared() -> FirebaseAuthorizationService { sharedInstance }
-    private let dataBase: Firestore
     
     private init() {
-        dataBase = Firestore.firestore()
+        
     }
 }
 
@@ -35,4 +35,26 @@ extension FirebaseAuthorizationService: Authorization {
         }
         return authorization
     }
+    
+    func authWithEmail(email: String, password: String, completion: @escaping (Bool) -> ()) {
+        FirebaseAuth.Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
+            if result != nil {
+                completion(true)
+            } else {
+                completion(false)
+            }
+        }
+    }
+    
+    func createWithEmail(email: String, password: String, completion: @escaping (Bool) -> ()) {
+        FirebaseAuth.Auth.auth().createUser(withEmail: email, password: password) { (result, error) in
+            if result != nil {
+                completion(true)
+            } else {
+                completion(false)
+            }
+        }
+    }
+    
+    
 }

@@ -13,7 +13,7 @@ enum AuthorizationState {
 }
 
 protocol AuthorizationScreenViewModelDelegate: class {
-    func didTapSignInButton(_ viewModel: AuthorizationScreenViewModel)
+    func didTapSignInButton(_ viewModel: AuthorizationScreenViewModel, email: String, password: String, authorizationState: AuthorizationState)
 }
 
 class AuthorizationScreenViewModel {
@@ -21,12 +21,14 @@ class AuthorizationScreenViewModel {
     // MARK: - Properties
     
     weak var delegate: AuthorizationScreenViewModelDelegate?
-    private var authorizationState = AuthorizationState.signUp
+    private var authorizationState = AuthorizationState.signIn
     
     // MARK: - Functions
     
-    func didTapSignInButton() {
-        delegate?.didTapSignInButton(self)
+    func didTapSignInButton(email: String?, password: String?) {
+        guard let email = email, !email.isEmpty,
+              let password = password, !password.isEmpty else { return }
+        delegate?.didTapSignInButton(self, email: email, password: password, authorizationState: authorizationState)
     }
     
     func authorization() -> Bool {
